@@ -15,6 +15,10 @@ class SearchBooks extends React.Component {
     books: []
   }
 
+  componentDidMount() {
+    this.queryInput.focus()
+  }
+
   onQueryChange = (event) => {
     const query = event.target.value
     this.setState({ query })
@@ -45,6 +49,7 @@ class SearchBooks extends React.Component {
               type="text"
               placeholder="Search by title or author"
               value={ query }
+              ref={(input) => { this.queryInput = input }}
               onChange={ this.onQueryChange } />
           </div>
         </div>
