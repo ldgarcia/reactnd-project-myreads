@@ -6,8 +6,8 @@
 ### Installing and launching the app
 
 ````bash
-$ git clone https://github.com/ldgarcia/reactnd-project-myreads-starter.git
-$ cd reactnd-project-myreads-starter
+$ git clone https://github.com/ldgarcia/reactnd-project-myreads.git
+$ cd reactnd-project-myreads
 $ npm install
 $ npm start
 ````
