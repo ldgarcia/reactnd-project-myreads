@@ -5,14 +5,12 @@ import Shelf from './Shelf'
 
 class ListBooks extends React.Component {
   static propTypes = {
-    currentlyReading: PropTypes.array.isRequired,
-    wantToRead: PropTypes.array.isRequired,
-    read: PropTypes.array.isRequired,
-    onMoveBook: PropTypes.func.isRequired
+    shelvedBooks: PropTypes.array.isRequired,
+    onShelfChange: PropTypes.func.isRequired
   }
 
   render() {
-    const { currentlyReading, wantToRead, read, onMoveBook } = this.props
+    const { shelvedBooks, onShelfChange } = this.props
     return (
       <div className="list-books">
         <div className="list-books-title">
@@ -21,16 +19,16 @@ class ListBooks extends React.Component {
         <div className="list-books-content">
           <Shelf
             name="Currently Reading"
-            books={ currentlyReading }
-            onMoveBook={ onMoveBook } />
+            books={ shelvedBooks.filter((book) => book.shelf === 'currentlyReading') }
+            onShelfChange={ onShelfChange } />
           <Shelf
             name="Want to Read"
-            books={ wantToRead }
-            onMoveBook={ onMoveBook } />
+            books={ shelvedBooks.filter((book) => book.shelf === 'wantToRead') }
+            onShelfChange={ onShelfChange } />
           <Shelf
             name="Read"
-            books={ read }
-            onMoveBook={ onMoveBook } />
+            books={ shelvedBooks.filter((book) => book.shelf === 'read') }
+            onShelfChange={ onShelfChange } />
         </div>
         <div className="open-search">
           <Link to='/search'>

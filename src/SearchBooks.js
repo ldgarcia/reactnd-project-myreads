@@ -6,7 +6,8 @@ import Book from './Book'
 
 class SearchBooks extends React.Component {
   static propTypes = {
-    onMoveBook: PropTypes.func.isRequired
+    shelvedBooks: PropTypes.array.isRequired,
+    onShelfChange: PropTypes.func.isRequired
   }
 
   state = {
@@ -14,26 +15,27 @@ class SearchBooks extends React.Component {
     books: []
   }
 
-  handleQueryChange = (event) => {
+  onQueryChange = (event) => {
     const query = event.target.value
-    if (query.length) {
-      BooksAPI.search(query, 20)
-      .then((books) => {
-        this.setState({ books: books.map((book) => book.id)})
-      })
-      .catch((error) => {
-        this.setState({ books: []})
-        console.log(error)
-      })
-    }
-    else {
-      this.setState({ books: []})
-    }
+    this.setState({ query })
+    BooksAPI.search(query, 20)
+    .then((books) => {
+      this.setState({ books })
+    })
+    .catch((error) => {
+      this.setState({ books: [] })
+    })
+  }
+
+  getShelf = (book) => {
+    const { shelvedBooks } = this.props
+    let shelvedBook = shelvedBooks.find((shelvedBook) => shelvedBook.id === book.id)
+    return shelvedBook ? shelvedBook.shelf : 'none'
   }
 
   render() {
-    const { onMoveBook } = this.props
-    const { books } = this.state
+    const { onShelfChange } = this.props
+    const { books, query } = this.state
     return (
       <div className="search-books">
         <div className="search-books-bar">
@@ -42,19 +44,23 @@ class SearchBooks extends React.Component {
             <input
               type="text"
               placeholder="Search by title or author"
-              onKeyUp={this.handleQueryChange} />
+              value={ query }
+              onChange={ this.onQueryChange } />
           </div>
         </div>
         <div className="search-books-results">
           <ol className="books-grid">
-            {books.map((bookId) => (
-              <li key={ bookId }>
+            {books.map((book) => (
+              <li key={ book.id }>
                 <Book
-                  id={ bookId }
-                  onMoveBook={onMoveBook}
+                  id={ book.id }
+                  title={ book.title }
+                  authors={ book.authors }
+                  imageLinks={ book.imageLinks }
+                  shelf={ this.getShelf(book) }
+                  onShelfChange={ onShelfChange }
                 />
-              </li>
-            ))}
+              </li>))}
           </ol>
         </div>
       </div>

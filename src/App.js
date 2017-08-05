@@ -6,49 +6,57 @@ import ListBooks from './ListBooks'
 import './App.css'
 
 class BooksApp extends React.Component {
-
   state = {
-    currentlyReading: [],
-    wantToRead: [],
-    read: []
+    shelvedBooks: [],
   }
 
   componentDidMount = () => {
     BooksAPI.getAll().then((books) => {
-      const currentlyReading = books.filter((book) => book.shelf === 'currentlyReading').map((book) => book.id)
-      const wantToRead = books.filter((book) => book.shelf === 'wantToRead').map((book) => book.id)
-      const read = books.filter((book) => book.shelf === 'read').map((book) => book.id)
       this.setState({
-        currentlyReading: currentlyReading,
-        wantToRead: wantToRead,
-        read: read
+        shelvedBooks: books
       })
     })
   }
 
-  moveBook = (book, newShelf) => {
+  changeShelf = (book, oldShelf, newShelf) => {
+    /* We first update the book's shelf */
     BooksAPI.update(book, newShelf).then((response) => {
-      this.setState(response)
+      /* Reload the book's data */
+      BooksAPI.get(book.id).then((book) => {
+        const { shelvedBooks } = this.state
+        const excludeBook = (b) => b.id !== book.id
+        /* We need to add a new book to a shelf */
+        if (oldShelf === 'none') {
+          this.setState({ shelvedBooks: shelvedBooks.concat([ book ])})
+        }
+        /* We need to remove a book from a shelf */
+        else if (newShelf === 'none') {
+          this.setState({ shelvedBooks: shelvedBooks.filter(excludeBook)})
+        }
+        /* We need to move a book between shelves */
+        else {
+          this.setState({ shelvedBooks: shelvedBooks.filter(excludeBook).concat([ book ])})
+        }
+      })
     })
   }
 
   render() {
-    const { currentlyReading, wantToRead, read } = this.state
+    const { shelvedBooks } = this.state
 
     return (
       <BrowserRouter>
         <div className="app">
-          <Route path='/' exact component={() => (
+          <Route path='/' exact render={() => (
             <ListBooks
-              currentlyReading={currentlyReading}
-              wantToRead={wantToRead}
-              read={read}
-              onMoveBook={this.moveBook}
+              shelvedBooks={ shelvedBooks }
+              onShelfChange={this.changeShelf}
             />
           )} />
-          <Route path='/search' exact component={() => (
+          <Route path='/search' exact render={() => (
             <SearchBooks
-              onMoveBook={this.moveBook}
+              shelvedBooks={ shelvedBooks }
+              onShelfChange={this.changeShelf}
             />
           )} />
         </div>
